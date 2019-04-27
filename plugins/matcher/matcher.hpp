@@ -26,7 +26,7 @@ namespace wf
 
         /* Tries to create a view matcher on the given domain (usually the output
          * of the plugin) with the given expression. May return null */
-        std::unique_ptr<view_matcher> get_matcher(wf_signal_provider_t& domain,
+        std::unique_ptr<view_matcher> get_matcher(wf::signal_provider_t& domain,
             wf_option expression)
         {
             match_signal data;
