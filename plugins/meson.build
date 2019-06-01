@@ -6,6 +6,6 @@ subdir('wobbly')
 subdir('blur')
 subdir('matcher')
 
-subdir('ellis-tiler')
+subdir('ellis_tiler')
 
 #subdir('tile')
