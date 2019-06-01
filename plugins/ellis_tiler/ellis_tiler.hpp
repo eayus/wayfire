@@ -7,40 +7,43 @@
 // WayFire
 #include <view.hpp>
 
-struct Container;
-struct Window;
+namespace elos {
+
+	struct Container;
+	struct Window;
 
 
-using Node = std::variant<Container, Window>;
+	using Node = std::variant<Container, Window>;
 
-enum class SplitType {
-	Horizontal,
-	Vertical,
-};
+	enum class SplitType {
+		Horizontal,
+		Vertical,
+	};
 
-struct Container {
-	SplitType split_type;
-	std::vector<Node> children;
-};
+	struct Container {
+		SplitType split_type;
+		std::vector<Node> children;
+	};
 
-struct Window {
-	wayfire_view view;
-};
+	struct Window {
+		wayfire_view view;
+	};
 
-class WindowTree {
-public:
-	static WindowTree empty();
+	class WindowTree {
+	public:
+		static WindowTree empty();
 
-	void insert(wayfire_view view);
-	void remove(wayfire_view view);
+		void insert(wayfire_view view);
+		void remove(wayfire_view view);
 
 
 
-	WindowTree();
+		WindowTree();
 
-private:
-	static void remove_from_node(Node* n, wayfire_view view);
+	private:
+		static void remove_from_node(Node* n, wayfire_view view);
 
-	Node root;
-};
+		Node root;
+	};
 
+}
