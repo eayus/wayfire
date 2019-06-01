@@ -5,4 +5,7 @@ subdir('cube')
 subdir('wobbly')
 subdir('blur')
 subdir('matcher')
+
+subdir('ellis-tiler')
+
 #subdir('tile')
