@@ -18,7 +18,7 @@ namespace elos {
 
 		this->root = Node((Container) {
 			.split_type = SplitType::Horizontal,
-			.children = std::vector<Node>{ &this->root, win },
+			.children = std::vector<Node>{ &this->root, Node(win) },
 		});
 
 		// TODO: Better geometry system
@@ -38,13 +38,13 @@ namespace elos {
 		auto i = n->index();
 
 		if (i == 0) {
-			Container con = std::get<0>(*n);
+			Container con = boost::get<0>(*n);
 
 			for (Node child : con.children) {
 				WindowTree::remove_from_node(&child, view);
 			}
 		} else {
-			Window win = std::get<1>(*n);
+			Window win = boost::get<1>(*n);
 
 			if (win.view == view) {
 				*n = Node((Container) {
@@ -72,7 +72,7 @@ namespace elos {
 		auto i = n->index();
 
 		if (i == 0) {
-			Container con = std::get<0>(n);
+			Container con = boost::get<0>(n);
 			auto children = con.children.size();
 
 			if (con.split_type == SplitType::Horizontal) {
@@ -103,7 +103,7 @@ namespace elos {
 				}
 			}
 		} else {
-			Window win = std::get<1>(n);
+			Window win = boost::get<1>(n);
 
 			win.view->set_geometry(new_dims);
 		}
