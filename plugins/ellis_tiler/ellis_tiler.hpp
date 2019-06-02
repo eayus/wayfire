@@ -4,6 +4,8 @@
 #include <vector>
 #include <boost/variant.hpp>
 
+:q
+:q
 // WayFire
 #include <view.hpp>
 #include <output.hpp>
@@ -39,10 +41,14 @@ namespace elos {
 
 
 
+
 		WindowTree();
 
 	private:
+		void update_all_geometry();
+
 		static void remove_from_node(Node* n, wayfire_view view);
+		static void update_geometry(Node& n, wf_geometry new_dims);
 
 		Node root;
 	};
