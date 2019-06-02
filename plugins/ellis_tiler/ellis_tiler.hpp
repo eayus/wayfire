@@ -2,7 +2,7 @@
 
 // Standard Library
 #include <vector>
-#include <variant>
+#include <boost/variant.hpp>
 
 // WayFire
 #include <view.hpp>
@@ -13,7 +13,7 @@ namespace elos {
 	struct Window;
 
 
-	using Node = std::variant<Container, Window>;
+	using Node = boost::variant<Container, Window>;
 
 	enum class SplitType {
 		Horizontal,
