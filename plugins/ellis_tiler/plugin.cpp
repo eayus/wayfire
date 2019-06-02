@@ -40,7 +40,7 @@ namespace elos {
 		}
 
 	private:
-		WindowTree window_tree;
+		elos::WindowTree window_tree;
 
 		signal_callback_t on_new_view;
 		signal_callback_t on_remove_view;

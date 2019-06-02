@@ -4,8 +4,6 @@
 #include <vector>
 #include <boost/variant.hpp>
 
-:q
-:q
 // WayFire
 #include <view.hpp>
 #include <output.hpp>
