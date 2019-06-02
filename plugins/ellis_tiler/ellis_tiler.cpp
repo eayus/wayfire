@@ -69,7 +69,7 @@ namespace elos {
 	}
 
 	void WindowTree::update_geometry(Node& n, wf_geometry new_dims) {
-		auto i = n->which();
+		auto i = n.which();
 
 		if (i == 0) {
 			Container con = boost::get<Container>(n);
@@ -81,7 +81,7 @@ namespace elos {
 				for (int j = 0; j < children; j++) {
 					auto child_dims = (wf_geometry){
 						.x = new_dims.x + (j * child_width),
-						.y = new_dims.y
+						.y = new_dims.y,
 						.width = child_width,
 						.height = new_dims.height,
 					};
