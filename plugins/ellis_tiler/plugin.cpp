@@ -1,5 +1,7 @@
 // WayFire
 #include <core.hpp>
+#include <output.hpp>
+#include <signal-definitions.hpp>
 #include "ellis_tiler.hpp"
 
 namespace elos {

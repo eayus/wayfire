@@ -6,6 +6,7 @@
 
 // WayFire
 #include <view.hpp>
+#include <output.hpp>
 
 namespace elos {
 
