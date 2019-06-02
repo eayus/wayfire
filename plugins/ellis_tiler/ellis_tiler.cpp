@@ -26,7 +26,7 @@ namespace elos {
 	}
 
 	void WindowTree::remove(wayfire_view view) {
-		WindowTree::remove_from_node(this->root, view);
+		WindowTree::remove_from_node(&this->root, view);
 
 		// TODO: Better geometry system
 		this->update_all_geometry();
@@ -35,7 +35,7 @@ namespace elos {
 	void WindowTree::remove_from_node(Node* n, wayfire_view view) {
 		// TODO: short circuit deletion.
 
-		auto i = n->index();
+		auto i = n->which();
 
 		if (i == 0) {
 			Container con = boost::get<Container>(*n);
@@ -69,7 +69,7 @@ namespace elos {
 	}
 
 	void WindowTree::update_geometry(Node& n, wf_geometry new_dims) {
-		auto i = n->index();
+		auto i = n->which();
 
 		if (i == 0) {
 			Container con = boost::get<Container>(n);
@@ -78,7 +78,7 @@ namespace elos {
 			if (con.split_type == SplitType::Horizontal) {
 				auto child_width = new_dims.width / children;
 
-				for (int j = 0; j < children, j++) {
+				for (int j = 0; j < children; j++) {
 					auto child_dims = (wf_geometry){
 						.x = new_dims.x + (j * child_width),
 						.y = new_dims.y
@@ -91,9 +91,9 @@ namespace elos {
 			} else {
 				auto child_height = new_dims.height / children;
 
-				for (int j = 0; j < children, j++) {
+				for (int j = 0; j < children; j++) {
 					auto child_dims = (wf_geometry){
-						.x = new_dims.x
+						.x = new_dims.x,
 						.y = new_dims.y + (j * child_height),
 						.width = new_dims.width,
 						.height = child_height,
