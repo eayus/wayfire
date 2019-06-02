@@ -33,7 +33,7 @@ namespace elos {
 				this->window_tree.insert(view);
 			};
 
-			this->on_view_removed = [=](signal_data* data) {
+			this->on_remove_view = [=](signal_data* data) {
 				wayfire_view view = get_signaled_view(data);
 				this->window_tree.remove(view);
 			};
