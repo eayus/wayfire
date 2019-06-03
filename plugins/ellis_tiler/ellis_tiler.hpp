@@ -2,7 +2,9 @@
 
 // Standard Library
 #include <vector>
+#include <utility>
 #include <boost/variant.hpp>
+#include <boost/optional.hpp>
 
 // WayFire
 #include <view.hpp>
@@ -23,7 +25,9 @@ namespace elos {
 
 	struct Container {
 		SplitType split_type;
-		std::vector<Node> children;
+
+		Node* left; // not null
+		Node* right; // not null
 	};
 
 	struct Window {
@@ -37,6 +41,7 @@ namespace elos {
 		void insert(wayfire_view view);
 		void remove(wayfire_view view);
 
+		void next_split(SplitType type);
 
 
 
@@ -45,10 +50,11 @@ namespace elos {
 	private:
 		void update_all_geometry();
 
-		static void remove_from_node(Node* n, wayfire_view view);
-		static void update_geometry(Node& n, wf_geometry new_dims);
+		static void remove_from_container(Node** n, wayfire_view view);
+		static void update_geometry(Node* n, wf_geometry new_dims);
 
-		Node root;
+		Node* root; // nullable
+		SplitType next_split_type;
 	};
 
 }

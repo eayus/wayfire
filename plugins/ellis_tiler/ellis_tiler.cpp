@@ -1,9 +1,15 @@
 #include "ellis_tiler.hpp"
 
+#include <iostream>
+#include <algorithm>
+
+constexpr int OUTER_GAP = 20;
+constexpr int INNER_GAP = 20;
+
 namespace elos {
 
 	WindowTree::WindowTree() :
-			root(Node((Container){ .split_type = SplitType::Horizontal, .children = std::vector<Node>{} })) {
+			root(nullptr), next_split_type(SplitType::Horizontal) {
 	}
 
 	WindowTree WindowTree::empty() {
@@ -11,99 +17,117 @@ namespace elos {
 		return wt;
 	}
 
+	void WindowTree::next_split(SplitType type) {
+		this->next_split_type = type;
+	}
+
 	void WindowTree::insert(wayfire_view view) {
-		Window win;
-		win.view = view;
+		std::cout << "Inserting window into tree" << std::endl;
 
-
-		this->root = Node((Container) {
-			.split_type = SplitType::Horizontal,
-			.children = std::vector<Node>{ this->root, Node(win) },
-		});
+		if (this->root != nullptr) {
+			this->root = new Node((Container){
+				.split_type = this->next_split_type,
+				.left = this->root,
+				.right = new Node((Window){ .view = view }),
+			});
+		} else {
+			this->root = new Node((Window){ .view = view });
+		}
 
 		// TODO: Better geometry system
 		this->update_all_geometry();
 	}
 
 	void WindowTree::remove(wayfire_view view) {
-		WindowTree::remove_from_node(&this->root, view);
+		if (this->root == nullptr) return;
+
+		auto node_type = this->root->which();
+
+		if (node_type == 0) {
+			WindowTree::remove_from_container(&this->root, view);
+		} else {
+			Window& win = boost::get<Window>(*this->root);
+
+			if (win.view == view) {
+				delete this->root;
+				this->root = nullptr;
+			}
+		}
 
 		// TODO: Better geometry system
 		this->update_all_geometry();
 	}
 
-	void WindowTree::remove_from_node(Node* n, wayfire_view view) {
-		// TODO: short circuit deletion.
+	void WindowTree::remove_from_container(Node** n, wayfire_view view) {
+		Container& con = boost::get<Container>(**n);
 
-		auto i = n->which();
+		if (con.left->which() == 1 && boost::get<Window>(*con.left).view == view) {
+			*n = con.right;
+			delete con.left;
+			return;
+		}
 
-		if (i == 0) {
-			Container con = boost::get<Container>(*n);
+		if (con.right->which() == 1 && boost::get<Window>(*con.right).view == view) {
+			*n = con.left;
+			delete con.right;
+			return;
+		}
 
-			for (Node child : con.children) {
-				WindowTree::remove_from_node(&child, view);
-			}
-		} else {
-			Window win = boost::get<Window>(*n);
+		if (con.left->which() == 0) {
+			WindowTree::remove_from_container(&con.left, view);
+		}
 
-			if (win.view == view) {
-				*n = Node((Container) {
-					.split_type = SplitType::Horizontal,
-					.children = std::vector<Node>{},
-				});
-			}
+		if (con.right->which() == 0) {
+			WindowTree::remove_from_container(&con.right, view);
 		}
 	}
 
 	void WindowTree::update_all_geometry() {
 		// TODO: don't hardcode
+		std::cout << "Updating all geomtry" << std::endl;
 
-		wf_geometry dims = (wf_geometry){
-			.x = 0,
-			.y = 0,
-			.width = 1920,
-			.height = 1080,
+		wf_geometry new_dims = (wf_geometry){
+			.x = 0 + OUTER_GAP,
+			.y = 0 + OUTER_GAP,
+			.width = 1920 - (2 * OUTER_GAP),
+			.height = 1080 - (2 * OUTER_GAP),
 		};
 
-		WindowTree::update_geometry(this->root, dims);
+		if (this->root == nullptr) return;
+
+
+		WindowTree::update_geometry(this->root, new_dims);
 	}
 
-	void WindowTree::update_geometry(Node& n, wf_geometry new_dims) {
-		auto i = n.which();
+	void WindowTree::update_geometry(Node* n, wf_geometry new_dims) {
+		auto i = n->which();
 
+		std::cout << i << std::endl;
 		if (i == 0) {
-			Container con = boost::get<Container>(n);
-			auto children = con.children.size();
+			Container& con = boost::get<Container>(*n);
+
+			wf_geometry left_dims = new_dims;
+			wf_geometry right_dims = new_dims;
+
+			auto half_w = new_dims.width / 2;
+			auto half_h = new_dims.height / 2;
+
+			auto half_g = INNER_GAP / 2;
 
 			if (con.split_type == SplitType::Horizontal) {
-				auto child_width = new_dims.width / children;
-
-				for (int j = 0; j < children; j++) {
-					auto child_dims = (wf_geometry){
-						.x = new_dims.x + (j * child_width),
-						.y = new_dims.y,
-						.width = child_width,
-						.height = new_dims.height,
-					};
-
-					WindowTree::update_geometry(con.children[j], child_dims);
-				}
+				left_dims.width = half_w - half_g;
+				right_dims.width = half_w - half_g;
+				right_dims.x += half_w + half_g;
 			} else {
-				auto child_height = new_dims.height / children;
-
-				for (int j = 0; j < children; j++) {
-					auto child_dims = (wf_geometry){
-						.x = new_dims.x,
-						.y = new_dims.y + (j * child_height),
-						.width = new_dims.width,
-						.height = child_height,
-					};
-
-					WindowTree::update_geometry(con.children[j], child_dims);
-				}
+				left_dims.height = half_h - half_g;
+				right_dims.height = half_h - half_g;
+				right_dims.y += half_h + half_g;
 			}
+
+			WindowTree::update_geometry(con.left, left_dims);
+			WindowTree::update_geometry(con.right, right_dims);
 		} else {
-			Window win = boost::get<Window>(n);
+			Window& win = boost::get<Window>(*n);
 
 			win.view->set_geometry(new_dims);
 		}
